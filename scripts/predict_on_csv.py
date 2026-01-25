@@ -5,8 +5,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 MODEL_PATH = BASE_DIR / "models" / "sentiment_logreg_model.pkl"
-INPUT_CSV = BASE_DIR / "data" / "processed" / "reviews_processed.csv"
-OUTPUT_CSV = BASE_DIR / "data" / "predictions" / "predictions.csv"
+INPUT_CSV = BASE_DIR / "Data" / "processed" / "reviews_processed.csv"
+OUTPUT_CSV = BASE_DIR / "Data" / "predictions" / "predictions.csv"
 
 def main():
     with open(MODEL_PATH, "rb") as f:
