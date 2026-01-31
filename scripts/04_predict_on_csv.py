@@ -17,7 +17,7 @@ def main():
     vectorizer = artifacts["vectorizer"]
 
     if not INPUT_CSV.exists():
-    raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
 
     df = pd.read_csv(INPUT_CSV)
 
