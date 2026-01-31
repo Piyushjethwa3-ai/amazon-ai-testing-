@@ -4,7 +4,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-INPUT_CSV = BASE_DIR / "Data" / "raw" / "reviews_raw.csv"
+INPUT_CSV = BASE_DIR / "Data" / "raw" / "reviews_to_predict.csv"
 OUTPUT_CSV = BASE_DIR / "Data" / "processed" / "reviews_processed.csv"
 
 
