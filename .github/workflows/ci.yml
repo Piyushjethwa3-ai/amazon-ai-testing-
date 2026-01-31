@@ -1,48 +1,44 @@
-name: AI Testing CI Pipeline
+name: AI Testing CI
 
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 2. Python setup
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    # 3. Install dependencies
     - name: Install dependencies
+      working-directory: ${{ github.workspace }}
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # 4. Run preprocessing (optional safety)
     - name: Run preprocessing
-      run: |
-        python scripts/02_preprocess.py
+      working-directory: ${{ github.workspace }}
+      run: python scripts/02_preprocess.py
 
-    # 5. Run predictions and generate CSV
+    - name: Train baseline model
+      working-directory: ${{ github.workspace }}
+      run: python scripts/03_train_baseline_model.py
+
     - name: Generate prediction CSV
-      run: |
-        python scripts/04_predict_on_csv.py
+      working-directory: ${{ github.workspace }}
+      run: python scripts/04_predict_on_csv.py
 
-    # 6. Run robustness tests
     - name: Run robustness tests
-      run: |
-        pytest tests/
+      working-directory: ${{ github.workspace }}
+      run: pytest tests/
 
-    # 7. Upload reports as CI artifacts
     - name: Upload reports
       uses: actions/upload-artifact@v4
       with:
