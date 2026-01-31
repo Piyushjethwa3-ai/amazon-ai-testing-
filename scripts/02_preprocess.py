@@ -3,44 +3,47 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-INPUT_CSV = BASE_DIR / "Data" / "raw" / "reviews_to_predict.csv"
-OUTPUT_CSV = BASE_DIR / "Data" / "processed" / "reviews_processed.csv"
+RAW_PATH = BASE_DIR / "Data" / "raw" / "reviews_raw.csv"
+PROCESSED_PATH = BASE_DIR / "Data" / "processed" / "reviews_processed.csv"
+
+def rating_to_label(rating):
+    if rating >= 4:
+        return 1
+    if rating <= 2:
+        return 0
+    return None
 
 def main():
-    df = pd.read_csv(INPUT_CSV)
+    df = pd.read_csv(RAW_PATH)
 
-    print("Columns found:", df.columns.tolist())
+    # Detect correct text column
+    if "review" in df.columns:
+        text_col = "review"
+    elif "clean_review" in df.columns:
+        text_col = "clean_review"
+    else:
+        raise ValueError("No valid review text column found")
 
-    # ---- FIX: map correct column names ----
-    if "review" not in df.columns:
-        if "review_text" in df.columns:
-            df = df.rename(columns={"review_text": "review"})
-        elif "clean_review" in df.columns:
-            df = df.rename(columns={"clean_review": "review"})
+    # Drop missing values
+    df = df.dropna(subset=[text_col, "rating"])
 
-    if "rating" not in df.columns:
-        if "label" in df.columns:
-            df["rating"] = df["label"].map({1: 5, 0: 1})
+    # Remove duplicates
+    df = df.drop_duplicates(subset=[text_col])
 
-    # Safety check
-    required = {"review", "rating"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+    # Create label
+    df["label"] = df["rating"].apply(rating_to_label)
 
-    df = df.dropna(subset=["review", "rating"])
+    # Drop neutral reviews
+    df = df[df["label"].notnull()]
 
-    df["label"] = df["rating"].apply(
-        lambda x: 1 if x >= 4 else 0 if x <= 2 else None
-    )
+    # Rename for downstream consistency
+    df = df.rename(columns={text_col: "clean_review"})
 
-    df = df.dropna(subset=["label"])
+    PROCESSED_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(PROCESSED_PATH, index=False)
 
-    OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(OUTPUT_CSV, index=False)
-
-    print("Preprocessing complete")
-    print("Final columns:", df.columns.tolist())
+    print("Preprocessing completed")
+    print("Rows:", len(df))
 
 if __name__ == "__main__":
     main()
