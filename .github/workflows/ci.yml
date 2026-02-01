@@ -35,13 +35,13 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: python scripts/04_predict_on_csv.py
 
-    - name: Run quality gate
-      working-directory: ${{ github.workspace }}
-      run: python scripts/05_quality_gate.py
-
     - name: Run robustness tests
       working-directory: ${{ github.workspace }}
       run: pytest tests/
+
+    - name: Run quality gate
+      working-directory: ${{ github.workspace }}
+      run: python scripts/05_quality_gate.py
 
     - name: Upload reports
       uses: actions/upload-artifact@v4
